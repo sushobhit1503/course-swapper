@@ -3,6 +3,7 @@ import { Link, NavLink, Redirect, withRouter } from "react-router-dom"
 import { connect } from "react-redux"
 import { auth } from "../config"
 import { googleAuth } from "../config"
+import { setCurrentUser } from "../Redux/Reducers/setCurrentUser"
 
 
 class Toolbar extends React.Component {
@@ -34,7 +35,11 @@ class Toolbar extends React.Component {
                             <NavLink activeClassName="tab-classes" to="/my-requests" style={{ fontSize: "15px", margin: "20px", color: "white", textDecoration: "none" }}>
                                 MY REQUESTS
                             </NavLink>
-                            <Link to="/" onClick={() => auth.signOut()} style={{ fontSize: "15px", margin: "20px", color: "white", textDecoration: "none" }}>
+                            <Link to="/" onClick={() => {
+                                auth.signOut();
+                                const { setCurrentUser } = this.props
+                                setCurrentUser(null)
+                            }} style={{ fontSize: "15px", margin: "20px", color: "white", textDecoration: "none" }}>
                                 LOG OUT
                             </Link>
                         </div>
@@ -48,4 +53,8 @@ const mapStateToProps = state => ({
     user: state.authUser
 })
 
-export default connect(mapStateToProps, null)(withRouter(Toolbar))
+const mapDispatchToProps = dispatch => ({
+    setCurrentUser: user => dispatch(setCurrentUser(user))
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Toolbar))

@@ -25,14 +25,15 @@ class App extends React.Component {
         console.log(ref);
         ref.get().then(doc => {
           if (!doc.exists) {
+            console.log(ref);
             ref.set({
-              displayName: user.displayName,
-              photoURL: user.photoURL,
-              email: user.email,
+              displayName: userObject.displayName,
+              photoURL: userObject.photoURL,
+              email: userObject.email,
               createdAt: firebase.firestore.FieldValue.serverTimestamp(),
               coursesHaveList: [],
               coursesWantList: [],
-              uid: user.uid
+              uid: userObject.uid
             })
           }
         })

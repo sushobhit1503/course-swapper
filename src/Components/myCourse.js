@@ -27,7 +27,6 @@ class myCourse extends React.Component {
         firestore.collection("users").doc(`${currentUser.uid}`).get().then(doc => {
             this.setState({ allCoursesHave: doc.data().coursesHaveList })
             this.setState({ allCoursesWant: doc.data().coursesWantList })
-            console.log(this.state);
         })
         let havedetails = []
         currentUser.coursesHaveList.map(id => {
@@ -39,7 +38,6 @@ class myCourse extends React.Component {
         let wantdetails = []
         currentUser.coursesWantList.map(id => {
             firestore.collection("courses").doc(`${id}`).get().then(doc => {
-                console.log(doc);
                 wantdetails.push(doc.data())
                 this.setState({ detailWant: wantdetails })
             })
@@ -56,13 +54,16 @@ class myCourse extends React.Component {
         }
         const onChangeStudents = event => {
             const { name, value } = event.target
-            this.setState({ [name]: value }, () => console.log(this.state))
+            this.setState({ [name]: value },)
             const docID = this.state.wantCourseSelect
+            console.log(this.state);
             console.log(docID);
-            firestore.collection("courses").doc("BIO F110").get().then(doc => {
-                const studentID = doc.data().studentsHaveList
-                this.setState({ allStudentsHave: studentID, haveCourseSelect: doc.data().courseName })
-            })
+            if (docID !== "") {
+                firestore.collection("courses").doc(docID).get().then(doc => {
+                    const studentID = doc.data().studentsHaveList
+                    this.setState({ allStudentsHave: studentID, haveCourseSelect: doc.data().courseName })
+                })
+            }
         }
         const checkCourse = (code, type) => {
             this.setState({ showModal: true, haveCourseSelect: code })
