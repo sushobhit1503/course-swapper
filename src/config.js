@@ -98,7 +98,7 @@ export const removeCourse = (code, user, type) => {
             coursesWantList: firebase.firestore.FieldValue.arrayRemove(code)
         })
         firestore.collection("courses").doc(`${code}`).update({
-            studentsHaveList: firebase.firestore.FieldValue.arrayRemove(user.displayName),
+            studentsWantList: firebase.firestore.FieldValue.arrayRemove(user.displayName),
             seatsInDemand: firebase.firestore.FieldValue.increment(-1)
         })
     }
