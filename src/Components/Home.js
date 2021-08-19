@@ -1,6 +1,5 @@
 import React from "react"
 import HomePic from "../Assets/home_gif.gif"
-import { firestore } from "../config"
 
 class Home extends React.Component {
 

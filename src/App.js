@@ -1,6 +1,6 @@
 import React from "react"
 import Toolbar from "./Components/Toolbar"
-import { auth, firestore, googleSave } from "./config"
+import { auth, firestore } from "./config"
 import { connect } from "react-redux"
 import { Switch, Route } from "react-router-dom"
 import AddCourse from "./Components/addCourse"
@@ -17,7 +17,6 @@ import firebase from "./config"
 class App extends React.Component {
   unsubscribe = null
   componentDidMount() {
-    const { user } = this.props
     const { setCurrentUser } = this.props
     this.unsubscribe = auth.onAuthStateChanged(async userObject => {
       if (userObject) {

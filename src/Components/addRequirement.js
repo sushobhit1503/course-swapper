@@ -30,7 +30,6 @@ class addRequirement extends React.Component {
             reqDisabled = false
         }
         const { currentUser } = this.props.authUser
-        var disabled = true
         const onChange = event => {
             const { name, value } = event.target
             this.setState({ [name]: value })

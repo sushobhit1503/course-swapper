@@ -30,17 +30,21 @@ class myCourse extends React.Component {
         })
         let havedetails = []
         currentUser.coursesHaveList.map(id => {
-            firestore.collection("courses").doc(`${id}`).get().then(doc => {
-                havedetails.push(doc.data())
-                this.setState({ detailHave: havedetails })
-            })
+            return (
+                firestore.collection("courses").doc(`${id}`).get().then(doc => {
+                    havedetails.push(doc.data())
+                    this.setState({ detailHave: havedetails })
+                })
+            )
         })
         let wantdetails = []
         currentUser.coursesWantList.map(id => {
-            firestore.collection("courses").doc(`${id}`).get().then(doc => {
-                wantdetails.push(doc.data())
-                this.setState({ detailWant: wantdetails })
-            })
+            return (
+                firestore.collection("courses").doc(`${id}`).get().then(doc => {
+                    wantdetails.push(doc.data())
+                    this.setState({ detailWant: wantdetails })
+                })
+            )
         })
     }
     render() {
@@ -78,11 +82,6 @@ class myCourse extends React.Component {
         const resolveCheck = () => {
             const { currentUser } = this.props.authUser
             const { haveCourseSelect, wantCourseSelect, studentName } = this.state
-            var wantCourseName = ""
-            firestore.collection("courses").doc(`${wantCourseSelect}`).get().then(doc => {
-                wantCourseName = doc.data().courseName
-            })
-            console.log(this.state, currentUser);
             firestore.collection("resolve").doc().set({
                 courseHave: haveCourseSelect,
                 courseWant: wantCourseSelect,

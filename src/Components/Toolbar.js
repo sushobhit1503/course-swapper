@@ -1,5 +1,5 @@
 import React from "react"
-import { Link, NavLink, Redirect, withRouter } from "react-router-dom"
+import { Link, NavLink, withRouter } from "react-router-dom"
 import { connect } from "react-redux"
 import { auth } from "../config"
 import { googleAuth } from "../config"

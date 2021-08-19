@@ -1,6 +1,5 @@
 import { Table, Button, Modal } from "react-bootstrap"
 import React from "react"
-import { Link } from "react-router-dom"
 import { firestore } from "../config"
 
 class Dashboard extends React.Component {
@@ -14,7 +13,7 @@ class Dashboard extends React.Component {
     }
     componentDidMount() {
         let row1 = []
-        firestore.collection("courses").where("seatsDemand", "!=", 0).get().then(allDocs => {
+        firestore.collection("courses").get().then(allDocs => {
             allDocs.forEach(course => {
                 row1.push(course.data())
             })
