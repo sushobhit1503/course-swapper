@@ -14,7 +14,7 @@ class myCourse extends React.Component {
             detailHave: [],
             detailWant: [],
             showModal: false,
-            allStudentsHave: ["Select Course Name first"],
+            allStudentsHave: [],
             wantCourseSelect: "",
             haveCourseSelect: "",
             studentName: "",
@@ -52,13 +52,24 @@ class myCourse extends React.Component {
         if (this.state.wantCourseSelect !== "" && this.state.studentName !== "") {
             resolveDisabled = false
         }
+        var studentDisabled = true
+        if (this.state.wantCourseSelect !== "") {
+            studentDisabled = false
+        }
         const onChange = (event) => {
             const { name, value } = event.target
-            this.setState({ [name]: value })
+            this.setState({ [name]: value }, () => console.log(this.state))
+            if (event.target.name === "wantCourseSelect") {
+                console.log(event.target.name);
+                getStudents()
+            }
         }
-        const onChangeStudents = event => {
-            const { name, value } = event.target
-            this.setState({ [name]: value },)
+        // const onChangeStudents = event => {
+        //     const { name, value } = event.target
+        //     this.setState({ [name]: value })
+        //     getStudents()
+        // }
+        const getStudents = () => {
             const docID = this.state.wantCourseSelect
             console.log(this.state);
             console.log(docID);
@@ -70,7 +81,11 @@ class myCourse extends React.Component {
             }
         }
         const checkCourse = (code, type) => {
-            this.setState({ showModal: true, haveCourseSelect: code })
+            var courseNames = ""
+            firestore.collection("courses").doc(`${code}`).get().then(doc => {
+                courseNames = doc.data().courseName
+                this.setState({ haveCourseSelect: courseNames, showModal: true }, () => console.log(this.state))
+            })
             // if (type === "HAVE") {
             //     firestore.collection("courses").doc(`${code}`).get().then(doc => {
             //         const studentID = doc.data().studentsHaveList
@@ -123,7 +138,7 @@ class myCourse extends React.Component {
                                     <td>{eachCourse.courseName}</td>
                                     <td>{eachCourse.courseTimings}</td>
                                     <td>HAVE</td>
-                                    <td><Button variant="success" onClick={() => checkCourse(eachCourse.courseCode, "HAVE")}>RESOLVE
+                                    <td><Button disabled variant="success" onClick={() => checkCourse(eachCourse.courseCode, "HAVE")}>RESOLVE
                                         <i style={{ paddingLeft: "5px" }} className="fa fa-check"></i>
                                     </Button></td>
                                     <td><Button variant="danger" onClick={() => deleteCourse(eachCourse.courseCode, "HAVE")}>DELETE
@@ -161,7 +176,7 @@ class myCourse extends React.Component {
                         <Form>
                             <Form.Group className="mb-3" controlId="formBasicCode">
                                 <Form.Label>Select Course You want:</Form.Label>
-                                <Form.Select onChange={onChangeStudents} value={this.state.wantCourseSelect} name="wantCourseSelect" aria-label="Default select example">
+                                <Form.Select onChange={onChange} value={this.state.wantCourseSelect} name="wantCourseSelect" aria-label="Default select example">
                                     <option>Select Course</option>
                                     {this.state.detailWant.map((singleCourse) => {
                                         return (
@@ -172,7 +187,7 @@ class myCourse extends React.Component {
                             </Form.Group>
                             <Form.Group className="mb-3" controlId="formBasicCode">
                                 <Form.Label>Select Student With Whom you want to swap:</Form.Label>
-                                <Form.Select onChange={onChange} value={this.state.studentName} name="studentName" aria-label="Default select example">
+                                <Form.Select disabled={studentDisabled} onChange={onChange} value={this.state.studentName} name="studentName" aria-label="Default select example">
                                     <option>Select Student</option>
                                     {this.state.allStudentsHave.map((singleCourse) => {
                                         return (

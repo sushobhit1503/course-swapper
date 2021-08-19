@@ -51,7 +51,6 @@ class addRequirement extends React.Component {
                             <Form.Label>Course You Have</Form.Label>
                             <Form.Select name="courseHave" onChange={onChange} value={this.state.courseHave} aria-label="Default select example">
                                 <option>Select your course</option>
-                                <option value="None" >None</option>
                                 {this.state.courseName.map((singleCourse) => {
                                     return (
                                         <option value={singleCourse.courseCode}>{singleCourse.courseName}</option>
@@ -63,7 +62,6 @@ class addRequirement extends React.Component {
                             <Form.Label>Course You Want</Form.Label>
                             <Form.Select name="courseWant" onChange={onChange} value={this.state.courseWant} aria-label="Default select example">
                                 <option>Select your course</option>
-                                <option value="Any">Any</option>
                                 {this.state.courseName.map((singleCourse) => {
                                     return (
                                         <option value={singleCourse.courseCode}>{singleCourse.courseName}</option>
