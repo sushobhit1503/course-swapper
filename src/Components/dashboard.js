@@ -27,13 +27,35 @@ class Dashboard extends React.Component {
             if (type === "HAVE") {
                 firestore.collection("courses").doc(`${code}`).get().then(doc => {
                     const studentName = doc.data().studentsHaveList
-                    this.setState({ specificStudents: studentName }, () => console.log(this.state))
+                    var studentObject = []
+                    studentName.map(eachStudent => {
+                        return (
+                            firestore.collection("users").where("displayName", "==", eachStudent).get().then(Snapshot => {
+                                Snapshot.forEach(doc => {
+                                    studentObject.push(doc.data())
+                                    console.log(doc.data());
+                                    this.setState({ specificStudents: studentObject })
+                                })
+                            })
+                        )
+                    })
                 })
             }
             if (type === "WANT") {
                 firestore.collection("courses").doc(`${code}`).get().then(doc => {
                     const studentName = doc.data().studentsWantList
-                    this.setState({ specificStudents: studentName })
+                    var studentObject = []
+                    studentName.map(eachStudent => {
+                        return (
+                            firestore.collection("users").where("displayName", "==", eachStudent).get().then(Snapshot => {
+                                Snapshot.forEach(doc => {
+                                    studentObject.push(doc.data())
+                                    console.log(doc.data());
+                                    this.setState({ specificStudents: studentObject })
+                                })
+                            })
+                        )
+                    })
                 })
             }
         }
@@ -77,7 +99,9 @@ class Dashboard extends React.Component {
                                 <div>
                                     {this.state.specificStudents.map(eachStudent => {
                                         return (
-                                            <li>{eachStudent}</li>
+                                            <li>{eachStudent.displayName} <br />
+                                                {eachStudent.email}
+                                            </li>
                                         )
                                     })}
                                 </div> :

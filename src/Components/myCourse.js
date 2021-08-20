@@ -3,6 +3,7 @@ import { Table, Modal, Form, Button } from "react-bootstrap"
 import { firestore, removeCourse } from "../config"
 import { connect } from "react-redux"
 import { Link, withRouter } from "react-router-dom"
+import { uuid } from "uuidv4"
 
 
 class myCourse extends React.Component {
@@ -15,6 +16,7 @@ class myCourse extends React.Component {
             detailWant: [],
             showModal: false,
             allStudentsHave: [],
+            pendingRequests: [],
             wantCourseSelect: "",
             haveCourseSelect: "",
             studentName: "",
@@ -46,6 +48,13 @@ class myCourse extends React.Component {
                 })
             )
         })
+        let pending = []
+        firestore.collection("resolve").where("requestAdder", "==", currentUser.displayName).get().then(Snapshot => {
+            Snapshot.forEach(doc => {
+                pending.push(doc.data())
+                this.setState({ pendingRequests: pending })
+            })
+        })
     }
     render() {
         var resolveDisabled = true
@@ -58,11 +67,13 @@ class myCourse extends React.Component {
         }
         const onChange = (event) => {
             const { name, value } = event.target
-            this.setState({ [name]: value }, () => console.log(this.state))
-            if (event.target.name === "wantCourseSelect") {
-                console.log(event.target.name);
-                getStudents()
-            }
+            this.setState({ [name]: value }, () => {
+                console.log(this.state);
+                if (event.target.name === "wantCourseSelect") {
+                    getStudents()
+                }
+            })
+
         }
         // const onChangeStudents = event => {
         //     const { name, value } = event.target
@@ -71,12 +82,10 @@ class myCourse extends React.Component {
         // }
         const getStudents = () => {
             const docID = this.state.wantCourseSelect
-            console.log(this.state);
-            console.log(docID);
             if (docID !== "") {
                 firestore.collection("courses").doc(docID).get().then(doc => {
                     const studentID = doc.data().studentsHaveList
-                    this.setState({ allStudentsHave: studentID, haveCourseSelect: doc.data().courseName })
+                    this.setState({ allStudentsHave: studentID })
                 })
             }
         }
@@ -97,10 +106,12 @@ class myCourse extends React.Component {
         const resolveCheck = () => {
             const { currentUser } = this.props.authUser
             const { haveCourseSelect, wantCourseSelect, studentName } = this.state
-            firestore.collection("resolve").doc().set({
+            var id = uuid()
+            firestore.collection("resolve").doc(id).set({
                 courseHave: haveCourseSelect,
                 courseWant: wantCourseSelect,
                 studentName: studentName,
+                id: id,
                 requestAdder: currentUser.displayName
             })
             this.setState({ showModal: false, isError: "Request has been added" })
@@ -138,7 +149,7 @@ class myCourse extends React.Component {
                                     <td>{eachCourse.courseName}</td>
                                     <td>{eachCourse.courseTimings}</td>
                                     <td>HAVE</td>
-                                    <td><Button disabled variant="success" onClick={() => checkCourse(eachCourse.courseCode, "HAVE")}>RESOLVE
+                                    <td><Button variant="success" onClick={() => checkCourse(eachCourse.courseCode, "HAVE")}>RESOLVE
                                         <i style={{ paddingLeft: "5px" }} className="fa fa-check"></i>
                                     </Button></td>
                                     <td><Button variant="danger" onClick={() => deleteCourse(eachCourse.courseCode, "HAVE")}>DELETE
@@ -167,6 +178,32 @@ class myCourse extends React.Component {
                 </Table>
                 <div style={{ display: "flex", justifyContent: "center" }}>
                     {this.state.isError}
+                </div>
+                <h3 style={{ color: "white", textAlign: "center" }}>PENDING REQUESTS !!</h3>
+                <Table striped bordered style={{ width: "80%", margin: "auto", backgroundColor: "white" }}>
+                    <thead>
+                        <tr>
+                            <th>COURSE REQUESTED</th>
+                            <th>COURSE OFFERED</th>
+                            <th>REQUESTED TO</th>
+                            <th>STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {this.state.pendingRequests.map(eachCourse => {
+                            return (
+                                <tr>
+                                    <td>{eachCourse.courseWant}</td>
+                                    <td>{eachCourse.courseHave}</td>
+                                    <td>{eachCourse.studentName}</td>
+                                    <td>PENDING</td>
+                                </tr>
+                            )
+                        })}
+                    </tbody>
+                </Table>
+                <div style={{ width: "0px", marginBottom: "20px" }}>
+
                 </div>
                 <Modal show={this.state.showModal} onHide={() => { this.setState({ showModal: false }) }}>
                     <Modal.Header closeButton>

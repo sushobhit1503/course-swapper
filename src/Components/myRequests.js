@@ -9,6 +9,7 @@ class myRequests extends React.Component {
         super()
         this.state = {
             allRequests: [],
+            haveCourseID: "",
             isError: ""
         }
     }
@@ -25,46 +26,118 @@ class myRequests extends React.Component {
         })
     }
     render() {
-        const accept = (wantCourse, haveCourse, studentName) => {
+        const accept = (wantCourse, haveCourse, studentName, id) => {
             const { displayName, uid } = this.props.currentUser.currentUser
-            var want = ""
-            var have = ""
-            firestore.collection("courses").where("courseName", "==", wantCourse).get().then(doc => {
-                console.log(doc.data());
-                want = doc.data().courseCode
+            console.log(wantCourse, haveCourse, studentName);
+            var haveCourseIDs = ""
+            firestore.collection("courses").where("courseName", '==', haveCourse).get().then(Snapshot => {
+                Snapshot.forEach(doc => {
+                    console.log(doc.data().courseCode);
+                    haveCourseIDs = doc.data().courseCode
+                    this.setState({ haveCourseID: haveCourseIDs }, () => {
+                        var hasWantCourse = []
+                        var isWantCourse = false
+                        firestore.collection("users").doc(`${uid}`).get().then(doc => {
+                            hasWantCourse = doc.data().coursesWantList
+                            console.log(hasWantCourse);
+                            console.log(this.state.haveCourseID);
+                            isWantCourse = hasWantCourse.includes(this.state.haveCourseID)
+                            console.log(isWantCourse);
+                            if (isWantCourse) {
+                                var batch = firestore.batch()
+                                var removeCourseReceiver = firestore.collection("users").doc(`${uid}`)
+                                batch.update(removeCourseReceiver, {
+                                    coursesHaveList: firebase.firestore.FieldValue.arrayRemove(wantCourse),
+                                    coursesWantList: firebase.firestore.FieldValue.arrayRemove(this.state.haveCourseID)
+                                })
+                                var studentNameUID = ""
+                                firestore.collection("users").where("displayName", "==", studentName).get().then(Snapshot => {
+                                    Snapshot.forEach(doc => {
+                                        studentNameUID = doc.data().uid
+                                        firestore.collection("users").doc(studentNameUID).update({
+                                            coursesHaveList: firebase.firestore.FieldValue.arrayRemove(this.state.haveCourseID),
+                                            coursesWantList: firebase.firestore.FieldValue.arrayRemove(wantCourse)
+                                        })
+                                        firestore.collection("courses").doc(this.state.haveCourseID).update({
+                                            seatsAvailable: firebase.firestore.FieldValue.increment(-1),
+                                            seatsInDemand: firebase.firestore.FieldValue.increment(-1),
+                                            studentsHaveList: firebase.firestore.FieldValue.arrayRemove(studentName),
+                                            studentsWantList: firebase.firestore.FieldValue.arrayRemove(displayName)
+                                        })
+                                        firestore.collection("courses").doc(wantCourse).update({
+                                            seatsAvailable: firebase.firestore.FieldValue.increment(-1),
+                                            seatsInDemand: firebase.firestore.FieldValue.increment(-1),
+                                            studentsHaveList: firebase.firestore.FieldValue.arrayRemove(displayName),
+                                            studentsWantList: firebase.firestore.FieldValue.arrayRemove(studentName)
+                                        })
+                                        firestore.collection("resolve").doc(id).get().then(doc => {
+                                            doc.ref.delete()
+                                        })
+                                    })
+                                })
+                            }
+                            else {
+                                this.setState({ isError: "You don't want the course which the user is offering !! Please add in your cart to accept this offer" })
+                            }
+                        })
+                    })
+                })
             })
-            firestore.collection("courses").where("courseName", "==", haveCourse).get().then(doc => {
-                console.log(doc.data());
-                have = doc.data().courseCode
-            })
-            firestore.collection("users").doc(`${uid}`).update({
-                coursesHaveList: firebase.firestore.FieldValue.arrayRemove(want),
-                coursesWantList: firebase.firestore.FieldValue.arrayRemove(have)
-            })
-            var studentID = ""
-            firestore.collection("users").where("displayName", "==", studentName).get().then(doc => {
-                studentID = doc.data().uid
-            })
-            firestore.collection("users").doc(studentID).update({
-                coursesHaveList: firebase.firestore.FieldValue.arrayRemove(have),
-                coursesWantList: firebase.firestore.FieldValue.arrayRemove(want)
-            })
-            firestore.collection("courses").doc(`${want}`).update({
-                studentsWantList: firebase.firestore.FieldValue.arrayRemove(studentName),
-                seatsInDemand: firebase.firestore.FieldValue.increment(-1)
-            })
-            firestore.collection("courses").doc(`${have}`).update({
-                studentsHaveList: firebase.firestore.FieldValue.arrayRemove(displayName),
-                seatsAvalaible: firebase.firestore.FieldValue.increment(-1)
-            })
-            this.setState({ isError: "The request has been accepted and resolved !! Refresh to see changes" })
+            console.log(this.state.haveCourseID);
+            // var hasWantCourse = []
+            // var isWantCourse = false
+            // firestore.collection("users").doc(`${uid}`).get().then(doc => {
+            //     hasWantCourse = doc.data().coursesWantList
+            //     console.log(hasWantCourse);
+            //     console.log(this.state.haveCourseID);
+            //     isWantCourse = hasWantCourse.includes(this.state.haveCourseID)
+            //     console.log(isWantCourse);
+            // })
+            // if (isWantCourse) {
+            //     var batch = firestore.batch()
+            //     var removeCourseReceiver = firestore.collection("users").doc(`${uid}`)
+            //     batch.update(removeCourseReceiver, {
+            //         coursesHaveList: firebase.firestore.FieldValue.arrayRemove(wantCourse),
+            //         coursesWantList: firebase.firestore.FieldValue.arrayRemove(this.state.haveCourseID)
+            //     })
+            //     var studentNameUID = ""
+            //     firestore.collection("users").where("displayName", "==", studentName).get().then(doc => {
+            //         studentNameUID = doc.data().uid
+            //     })
+            //     var removeCourseRequester = firestore.collection("users").doc(studentNameUID)
+            //     batch.update(removeCourseRequester, {
+            //         coursesHaveList: firebase.firestore.FieldValue.arrayRemove(this.state.haveCourseID),
+            //         coursesWantList: firebase.firestore.FieldValue.arrayRemove(wantCourse)
+            //     })
+            //     var removeCourseHaveReq = firestore.collection("courses").doc(this.state.haveCourseID)
+            //     batch.update(removeCourseHaveReq, {
+            //         seatsAvailable: firebase.firestore.FieldValue.increment(-1),
+            //         seatsInDemand: firebase.firestore.FieldValue.increment(-1),
+            //         studentsHaveList: firebase.firestore.FieldValue.arrayRemove(studentName),
+            //         studentsWantList: firebase.firestore.FieldValue.arrayRemove(displayName)
+            //     })
+            //     var removeCourseWantReq = firestore.collection("courses").doc(wantCourse)
+            //     batch.update(removeCourseWantReq, {
+            //         seatsAvailable: firebase.firestore.FieldValue.increment(-1),
+            //         seatsInDemand: firebase.firestore.FieldValue.increment(-1),
+            //         studentsHaveList: firebase.firestore.FieldValue.arrayRemove(displayName),
+            //         studentsWantList: firebase.firestore.FieldValue.arrayRemove(studentName)
+            //     })
+            //     var removeResolveReq = firestore.collection("resolve").doc(id)
+            //     batch.delete(removeResolveReq)
+            //     batch.commit().then(() => {
+
+            //         this.setState({ isError: "Request has been accepted and necessary changes has been made" })
+            //     })
+            // }
+            // else {
+            //     this.setState({ isError: "You don't want the course which the user is offering !! Please add in your cart to accept this offer" })
+            // }
         }
         const decline = (want, have, studentName) => {
-            console.log(want, have, studentName);
             firestore.collection("resolve").where("requestAdder", "==", studentName).get().then(Snapshot => {
                 Snapshot.forEach(doc => {
                     if ((doc.data().courseHave === have) && (doc.data().courseWant === want)) {
-                        console.log(doc.data().courseHave, doc.data().courseWant);
                         doc.ref.delete()
                     }
                 })
@@ -92,7 +165,7 @@ class myRequests extends React.Component {
                                     <td>{eachReq.courseHave}</td>
                                     <td>{eachReq.requestAdder}</td>
                                     <td>
-                                        <Button onClick={() => accept(eachReq.courseWant, eachReq.courseHave, eachReq.requestAdder)} variant="success"> ACCEPT</Button>
+                                        <Button disabled onClick={() => accept(eachReq.courseWant, eachReq.courseHave, eachReq.requestAdder, eachReq.id)} variant="success"> ACCEPT</Button>
                                     </td>
                                     <td>
                                         <Button onClick={() => decline(eachReq.courseWant, eachReq.courseHave, eachReq.requestAdder)} variant="danger"> DECLINE</Button>
