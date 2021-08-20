@@ -13,11 +13,10 @@ class Dashboard extends React.Component {
     }
     componentDidMount() {
         let row1 = []
-        firestore.collection("courses").get().then(allDocs => {
+        firestore.collection("courses").where("seatsAvailable", ">=", 0).orderBy("seatsAvailable", "desc").get().then(allDocs => {
             allDocs.forEach(course => {
                 row1.push(course.data())
             })
-
             this.setState({ allCourseName: row1 })
         })
 

@@ -16,32 +16,44 @@ import firebase from "./config"
 
 class App extends React.Component {
   unsubscribe = null
+  constructor() {
+    super()
+    this.state = {
+      isError: ""
+    }
+  }
   componentDidMount() {
     const { setCurrentUser } = this.props
     this.unsubscribe = auth.onAuthStateChanged(async userObject => {
       if (userObject) {
-        const ref = firestore.collection("users").doc(`${userObject.uid}`)
-        console.log(ref);
-        ref.get().then(doc => {
-          if (!doc.exists) {
-            console.log(ref);
-            ref.set({
-              displayName: userObject.displayName,
-              photoURL: userObject.photoURL,
-              email: userObject.email,
-              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-              coursesHaveList: [],
-              coursesWantList: [],
-              uid: userObject.uid
-            })
-          }
-        })
-        ref.onSnapshot(snapShot => {
-          setCurrentUser({
-            id: snapShot.id,
-            ...snapShot.data()
+        let re = userObject.email.search(/(@hyderabad.bits-pilani.ac.in)$/)
+        if (re !== -1) {
+          const ref = firestore.collection("users").doc(`${userObject.uid}`)
+          console.log(ref);
+          ref.get().then(doc => {
+            if (!doc.exists) {
+              console.log(ref);
+              ref.set({
+                displayName: userObject.displayName,
+                photoURL: userObject.photoURL,
+                email: userObject.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                coursesHaveList: [],
+                coursesWantList: [],
+                uid: userObject.uid
+              })
+            }
           })
-        })
+          ref.onSnapshot(snapShot => {
+            setCurrentUser({
+              id: snapShot.id,
+              ...snapShot.data()
+            })
+          })
+          if (re === -1) {
+            this.setState({ isError: "Please use bitsmail to login" })
+          }
+        }
         const { allCourseName } = this.props.courseList
         const { courseAction } = this.props
         if (allCourseName.length === 0) {
