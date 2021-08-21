@@ -30,7 +30,6 @@ class myRequests extends React.Component {
         const accept = async (wantCourse, haveCourse, studentName, id) => {
             const { displayName, uid } = this.props.currentUser.currentUser
             this.setState({ loading: true })
-            console.log(wantCourse, haveCourse, studentName);
             await firestore.collection("users").where("displayName", "==", studentName).get().then(Snapshot => {
                 Snapshot.forEach(doc => {
                     this.setState({ studentNameID: doc.data().uid })
@@ -47,7 +46,6 @@ class myRequests extends React.Component {
                     this.setState({ isWantCourse: true })
                 }
             })
-            console.log(this.state);
             if (this.state.isWantCourse) {
                 await firestore.collection("users").doc(`${uid}`).update({
                     coursesHaveList: firebase.firestore.FieldValue.arrayRemove(wantCourse),

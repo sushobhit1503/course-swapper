@@ -25,7 +25,6 @@ class myCourse extends React.Component {
     }
     componentDidMount() {
         const { currentUser } = this.props.authUser
-        console.log(currentUser);
         firestore.collection("users").doc(`${currentUser.uid}`).get().then(doc => {
             this.setState({ allCoursesHave: doc.data().coursesHaveList })
             this.setState({ allCoursesWant: doc.data().coursesWantList })
@@ -68,7 +67,6 @@ class myCourse extends React.Component {
         const onChange = (event) => {
             const { name, value } = event.target
             this.setState({ [name]: value }, () => {
-                console.log(this.state);
                 if (event.target.name === "wantCourseSelect") {
                     getStudents()
                 }
@@ -93,7 +91,7 @@ class myCourse extends React.Component {
             var courseNames = ""
             firestore.collection("courses").doc(`${code}`).get().then(doc => {
                 courseNames = doc.data().courseName
-                this.setState({ haveCourseSelect: courseNames, showModal: true }, () => console.log(this.state))
+                this.setState({ haveCourseSelect: courseNames, showModal: true })
             })
             // if (type === "HAVE") {
             //     firestore.collection("courses").doc(`${code}`).get().then(doc => {

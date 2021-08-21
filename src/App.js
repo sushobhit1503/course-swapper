@@ -25,15 +25,12 @@ class App extends React.Component {
   componentDidMount() {
     const { setCurrentUser } = this.props
     this.unsubscribe = auth.onAuthStateChanged(async userObject => {
-      console.log(userObject);
       if (userObject) {
         let re = userObject.email.search(/(@hyderabad.bits-pilani.ac.in)$/)
         if (re !== -1) {
           const ref = firestore.collection("users").doc(`${userObject.uid}`)
-          console.log(ref);
           ref.get().then(doc => {
             if (!doc.exists) {
-              console.log(ref);
               ref.set({
                 displayName: userObject.displayName,
                 photoURL: userObject.photoURL,

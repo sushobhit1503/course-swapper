@@ -37,7 +37,6 @@ class addRequirement extends React.Component {
 
         const onSubmit = event => {
             event.preventDefault()
-            console.log(this.state);
             addRequirementTo(this.state, currentUser)
             this.setState({ isError: "The course has been saved", courseHave: "", courseWant: "" })
         }

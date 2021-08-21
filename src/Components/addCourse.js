@@ -1,6 +1,6 @@
 import { Card } from 'antd';
 import { Form, Button } from "react-bootstrap"
-import { addCourseTo } from "../config"
+import { addCourseTo, firestore } from "../config"
 import React from "react"
 import { withRouter } from 'react-router-dom';
 

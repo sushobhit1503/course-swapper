@@ -39,7 +39,6 @@ export const googleSave = user => {
 
 export const addCourseTo = (details) => {
     const { name, code, time } = details
-    console.log(details);
     firestore.collection("courses").doc(`${code}`).set({
         courseName: name,
         courseCode: code,

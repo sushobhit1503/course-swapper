@@ -33,7 +33,6 @@ class Dashboard extends React.Component {
                             firestore.collection("users").where("displayName", "==", eachStudent).get().then(Snapshot => {
                                 Snapshot.forEach(doc => {
                                     studentObject.push(doc.data())
-                                    console.log(doc.data());
                                     this.setState({ specificStudents: studentObject })
                                 })
                             })
@@ -50,7 +49,6 @@ class Dashboard extends React.Component {
                             firestore.collection("users").where("displayName", "==", eachStudent).get().then(Snapshot => {
                                 Snapshot.forEach(doc => {
                                     studentObject.push(doc.data())
-                                    console.log(doc.data());
                                     this.setState({ specificStudents: studentObject })
                                 })
                             })
