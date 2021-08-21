@@ -1,13 +1,13 @@
 import { Table, Button, Modal } from "react-bootstrap"
 import React from "react"
 import { firestore } from "../config"
-
 class Dashboard extends React.Component {
     constructor() {
         super()
         this.state = {
             allCourseName: [],
             showModal: false,
+            filterValue: "",
             specificStudents: []
         }
     }
@@ -59,10 +59,19 @@ class Dashboard extends React.Component {
                 })
             }
         }
+        const onChange = event => {
+            const { name, value } = event.target
+            this.setState({ [name]: value })
+        }
+        const filteredArray = this.state.allCourseName.filter(course => course.courseName.toLowerCase().includes(this.state.filterValue.toLowerCase()))
         return (
             <div style={{ color: "white", display: "flex", flexDirection: "column" }}>
                 <div style={{ display: "flex", justifyContent: "space-around" }}>
                     <div style={{ textAlign: "center", display: "none" }} >All Courses</div>
+                </div>
+                <input className="filter" style={{ width: "200px", margin: "auto", color: "black" }} placeholder="Search Course ...." name="filterValue" onChange={onChange} value={this.state.filterValue} type="search" />
+                <div style={{ width: "none", marginBottom: "20px" }}>
+
                 </div>
                 <Table striped bordered style={{ width: "90%", margin: "auto", backgroundColor: "white", color: "black" }}>
                     <thead>
@@ -77,7 +86,7 @@ class Dashboard extends React.Component {
                         </tr>
                     </thead>
                     <tbody>
-                        {this.state.allCourseName.map((EachCourse) => (
+                        {filteredArray.map((EachCourse) => (
                             <tr>
                                 <td>{EachCourse.courseCode}</td>
                                 <td>{EachCourse.courseName}</td>

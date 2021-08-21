@@ -13,6 +13,13 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
+.filter {
+  border: none;
+  outline: none;
+  padding: 5px;
+  border-radius: 5px;
+}
+
 .tab-classes {
   border-bottom: 3px solid #DB4437;
 }

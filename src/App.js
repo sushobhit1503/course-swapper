@@ -25,6 +25,7 @@ class App extends React.Component {
   componentDidMount() {
     const { setCurrentUser } = this.props
     this.unsubscribe = auth.onAuthStateChanged(async userObject => {
+      console.log(userObject);
       if (userObject) {
         let re = userObject.email.search(/(@hyderabad.bits-pilani.ac.in)$/)
         if (re !== -1) {
